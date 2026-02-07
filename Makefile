@@ -23,7 +23,7 @@ api:
 	@docker compose $(COMPOSE_FILES) up -d api
 
 load:
-	@wrk -t1 -c5 -d30s -s scripts/load.lua http://localhost:8000
+	@wrk -t4 -c50 -d30s -s scripts/load.lua http://localhost:8000
 
 logs:
 	@docker compose $(COMPOSE_FILES) logs -f --tail=200 $(name)
