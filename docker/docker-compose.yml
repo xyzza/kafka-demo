@@ -124,6 +124,19 @@ services:
     networks:
       - kafka-network
 
+  api:
+    <<: *BASE_APP
+    container_name: kafka-demo-api
+    ports:
+      - "8000:8000"
+    command: ["api"]
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+    networks:
+      - kafka-network
+
   consumer:
     <<: *BASE_APP
     container_name: kafka-demo-consumer

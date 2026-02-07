@@ -1,4 +1,4 @@
-.PHONY: exec build db down clean
+.PHONY: exec build db down clean api load logs
 DOCKER_DIR = docker
 COMPOSE_FILES = -f $(DOCKER_DIR)/docker-compose.yml
 OVERRIDE_FILE = $(DOCKER_DIR)/docker-compose.override.yml
@@ -18,6 +18,15 @@ up:
 
 db:
 	@docker compose $(COMPOSE_FILES) up -d db
+
+api:
+	@docker compose $(COMPOSE_FILES) up -d api
+
+load:
+	@wrk -t1 -c5 -d30s -s scripts/load.lua http://localhost:8000
+
+logs:
+	@docker compose $(COMPOSE_FILES) logs -f --tail=200 $(name)
 
 down:
 	@docker compose $(COMPOSE_FILES) down
