@@ -124,6 +124,21 @@ services:
     networks:
       - kafka-network
 
+  kafka-init:
+    image: apache/kafka:latest
+    container_name: kafka-init
+    env_file:
+      - ../.env.example
+    volumes:
+      - ../scripts/kafka-init.sh:/opt/scripts/kafka-init.sh:ro
+    entrypoint: ["/bin/sh", "/opt/scripts/kafka-init.sh"]
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+    networks:
+      - kafka-network
+
   api:
     <<: *BASE_APP
     container_name: kafka-demo-api
@@ -131,9 +146,8 @@ services:
       - "8000:8000"
     command: ["api"]
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
 
@@ -142,13 +156,10 @@ services:
     container_name: kafka-demo-consumer
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=broker-1:19092,broker-2:19092,broker-3:19092
-      - KAFKA_TOPIC=demo_topic
-      - KAFKA_GROUP_ID=demo-consumer-group
     command: ["python", "-m", "svc.kafka.consumer"]
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
 
@@ -157,13 +168,10 @@ services:
     container_name: kafka-demo-consumer-2
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=broker-1:19092,broker-2:19092,broker-3:19092
-      - KAFKA_TOPIC=demo_topic
-      - KAFKA_GROUP_ID=demo-consumer-group
     command: ["python", "-m", "svc.kafka.consumer"]
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
 
@@ -172,13 +180,10 @@ services:
     container_name: kafka-demo-consumer-3
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=broker-1:19092,broker-2:19092,broker-3:19092
-      - KAFKA_TOPIC=demo_topic
-      - KAFKA_GROUP_ID=demo-consumer-group
     command: ["python", "-m", "svc.kafka.consumer"]
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
+      kafka-init:
+        condition: service_completed_successfully
     networks:
       - kafka-network
 
